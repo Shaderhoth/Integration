@@ -1,0 +1,11 @@
+{
+  "domain": "IWR6843AOPEVM",
+  "name": "IWR6843AOPEVM Integration",
+  "version": "1.0.0",
+  "documentation": "https://github.com/Shaderhoth/Integration",
+  "requirements": [
+    "pyserial==3.5"
+  ],
+  "codeowners": ["@Shaderhoth"],
+  "iot_class": "local_polling"
+}

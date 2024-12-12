@@ -1,40 +1,57 @@
-from homeassistant.helpers.entity import Entity
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from .const import DOMAIN, CONF_DATA_DEVICE_PATH
-import logging
+"""Sensor platform for integration_blueprint."""
 
-_LOGGER = logging.getLogger(__name__)
+from __future__ import annotations
 
-async def async_setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    async_add_entities,
-    discovery_info: DiscoveryInfoType = None
-):
-    if discovery_info is None:
-        return
+from typing import TYPE_CHECKING
 
-    radar_reader = hass.data[DOMAIN].get('radar_reader')
-    if not radar_reader:
-        _LOGGER.error("RadarReader not found in hass.data")
-        return
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-    async_add_entities([RadarOccupancySensor(radar_reader)], update_before_add=True)
+from .entity import IntegrationBlueprintEntity
 
-class RadarOccupancySensor(Entity):
-    _attr_name = "Room Occupancy"
-    _attr_icon = "mdi:account-group"
-    _attr_unit_of_measurement = "persons"
-    _attr_unique_id = "radar_room_occupancy"
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    def __init__(self, radar_reader):
-        self.radar_reader = radar_reader
-        self._state = None
+    from .coordinator import BlueprintDataUpdateCoordinator
+    from .data import IntegrationBlueprintConfigEntry
+
+ENTITY_DESCRIPTIONS = (
+    SensorEntityDescription(
+        key="integration_blueprint",
+        name="Integration Sensor",
+        icon="mdi:format-quote-close",
+    ),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
+    entry: IntegrationBlueprintConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the sensor platform."""
+    async_add_entities(
+        IntegrationBlueprintSensor(
+            coordinator=entry.runtime_data.coordinator,
+            entity_description=entity_description,
+        )
+        for entity_description in ENTITY_DESCRIPTIONS
+    )
+
+
+class IntegrationBlueprintSensor(IntegrationBlueprintEntity, SensorEntity):
+    """integration_blueprint Sensor class."""
+
+    def __init__(
+        self,
+        coordinator: BlueprintDataUpdateCoordinator,
+        entity_description: SensorEntityDescription,
+    ) -> None:
+        """Initialize the sensor class."""
+        super().__init__(coordinator)
+        self.entity_description = entity_description
 
     @property
-    def state(self):
-        return self._state
-
-    def update(self):
-        self._state = self.radar_reader.get_people_count()
+    def native_value(self) -> str | None:
+        """Return the native value of the sensor."""
+        return self.coordinator.data.get("body")

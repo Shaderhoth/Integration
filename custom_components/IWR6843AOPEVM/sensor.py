@@ -1,27 +1,30 @@
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_NAME
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 from datetime import timedelta
-from .const import DOMAIN
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
+from .const import DOMAIN, LOGGER
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     core = hass.data[DOMAIN][config_entry.entry_id]
     coordinator = RadarDataUpdateCoordinator(hass, core)
     await coordinator.async_config_entry_first_refresh()
-    async_add_entities([RadarSensor(coordinator, config_entry.data[CONF_NAME])])
+    async_add_entities([RadarSensor(coordinator, config_entry.data["name"])])
 
 class RadarDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, core):
         super().__init__(
-            hass,
-            logger=hass.logger,
+            hass=hass,
+            logger=LOGGER,
             name="Radar Sensor Data",
             update_interval=timedelta(milliseconds=200),
         )
         self.core = core
 
     async def _async_update_data(self):
-        return self.core.parseData()
+        try:
+            return self.core.parseData()
+        except Exception as exception:
+            LOGGER.error("Error updating radar data: %s", exception)
+            return -1
 
 class RadarSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, name):

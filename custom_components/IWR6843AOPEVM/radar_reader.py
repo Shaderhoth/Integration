@@ -26,8 +26,14 @@ class RadarReader:
             try:
                 line = self.serial_connection.readline().decode("utf-8").strip()
                 if line:
-                    # tbc
-                    return int(line)
+                    _LOGGER.debug("Received radar data: %s", line)
+                    try:
+                        return int(line)
+                    except ValueError:
+                        _LOGGER.error("Received non-integer data: %s", line)
+                        return 0
+            except ValueError:
+                _LOGGER.error("Received non-integer data: %s", line)
             except Exception as e:
                 _LOGGER.error("Error reading radar data: %s", e)
         return None

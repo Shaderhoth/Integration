@@ -1,5 +1,5 @@
 {
-  "domain": "iwr6843aopevm",
+  "domain": "radar_integration",
   "name": "IWR6843AOPEVM Integration",
   "codeowners": ["@Shaderhoth"],
   "config_flow": true,

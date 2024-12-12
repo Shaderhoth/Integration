@@ -2,18 +2,25 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from .radar_reader import RadarReader
-from .const import DOMAIN, CONF_DEVICE_PATH
-
+from .const import DOMAIN, CONF_CLI_DEVICE_PATH, CONF_DATA_DEVICE_PATH
 import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_platform(hass: HomeAssistant, config: ConfigType, async_add_entities, discovery_info: DiscoveryInfoType = None):
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config: ConfigType,
+    async_add_entities,
+    discovery_info: DiscoveryInfoType = None
+):
     if discovery_info is None:
         return
 
-    device_path = hass.data[DOMAIN][CONF_DEVICE_PATH]
-    radar_reader = RadarReader(device_path)
+    cli_device_path = hass.data[DOMAIN][CONF_CLI_DEVICE_PATH]
+    data_device_path = hass.data[DOMAIN][CONF_DATA_DEVICE_PATH]
+
+    radar_reader = RadarReader(cli_device_path, data_device_path)
+    hass.data[DOMAIN]['radar_reader'] = radar_reader
     async_add_entities([RadarOccupancySensor(radar_reader)], update_before_add=True)
 
 class RadarOccupancySensor(Entity):
@@ -31,6 +38,4 @@ class RadarOccupancySensor(Entity):
         return self._state
 
     def update(self):
-        data = self.radar_reader.read_data()
-        if data is not None:
-            self._state = data
+        self._state = self.radar_reader.get_people_count()

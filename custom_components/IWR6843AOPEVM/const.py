@@ -1,3 +1,5 @@
 DOMAIN = "IWR6843AOPEVM"
-CONF_DEVICE_PATH = "device_path"
-DEFAULT_DEVICE_PATH = "/dev/ttyUSB0"
+CONF_CLI_DEVICE_PATH = "cli_device_path"
+CONF_DATA_DEVICE_PATH = "data_device_path"
+DEFAULT_CLI_DEVICE_PATH = "/dev/ttyUSB1"
+DEFAULT_DATA_DEVICE_PATH = "/dev/ttyUSB2"

@@ -1,14 +1,20 @@
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from .const import DOMAIN
+from homeassistant.helpers.discovery import load_platform
+from homeassistant.const import CONF_DEVICE_PATH
+from .const import DOMAIN, DEFAULT_DEVICE_PATH
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
-    await hass.config_entries.async_forward_entry_setup(entry, "sensor")
-    return True
+async def async_setup(hass, config):
+    if DOMAIN not in config:
+        return True
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    await hass.config_entries.async_forward_entry_unload(entry, "sensor")
-    hass.data[DOMAIN].pop(entry.entry_id)
+    device_path = config[DOMAIN].get(CONF_DEVICE_PATH, DEFAULT_DEVICE_PATH)
+
+    hass.data[DOMAIN] = {
+        CONF_DEVICE_PATH: device_path
+    }
+
+    # Load the sensor platform
+    hass.async_create_task(
+        hass.helpers.discovery.async_load_platform("sensor", DOMAIN, {}, config)
+    )
+
     return True

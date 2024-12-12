@@ -23,7 +23,7 @@ class RadarReader:
             try:
                 line = self.serial_connection.readline().decode("utf-8").strip()
                 if line:
-                    return int(line)  # Replace with appropriate data parsing logic
+                    return int(line) 
             except Exception as e:
                 _LOGGER.error("Error reading radar data: %s", e)
         return None

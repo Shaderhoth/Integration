@@ -14,7 +14,7 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, core):
         super().__init__(
             hass,
-            logger=hass.helpers.logger,
+            logger=hass.logger,
             name="Radar Sensor Data",
             update_interval=timedelta(milliseconds=200),
         )

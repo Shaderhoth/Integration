@@ -1,57 +1,26 @@
-"""Sensor platform for integration_blueprint."""
-
 from __future__ import annotations
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import CONF_NAME
+from .const import DOMAIN
+from .radar_reader import Core
 
-from typing import TYPE_CHECKING
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up the radar sensor platform."""
+    core = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities([RadarSensor(core, config_entry.data[CONF_NAME])], True)
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+class RadarSensor(SensorEntity):
+    """Representation of a radar sensor."""
 
-from .entity import IntegrationBlueprintEntity
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from .coordinator import BlueprintDataUpdateCoordinator
-    from .data import IntegrationBlueprintConfigEntry
-
-ENTITY_DESCRIPTIONS = (
-    SensorEntityDescription(
-        key="integration_blueprint",
-        name="Integration Sensor",
-        icon="mdi:format-quote-close",
-    ),
-)
-
-
-async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    entry: IntegrationBlueprintConfigEntry,
-    async_add_entities: AddEntitiesCallback,
-) -> None:
-    """Set up the sensor platform."""
-    async_add_entities(
-        IntegrationBlueprintSensor(
-            coordinator=entry.runtime_data.coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
-    )
-
-
-class IntegrationBlueprintSensor(IntegrationBlueprintEntity, SensorEntity):
-    """integration_blueprint Sensor class."""
-
-    def __init__(
-        self,
-        coordinator: BlueprintDataUpdateCoordinator,
-        entity_description: SensorEntityDescription,
-    ) -> None:
-        """Initialize the sensor class."""
-        super().__init__(coordinator)
-        self.entity_description = entity_description
+    def __init__(self, core: Core, name: str) -> None:
+        self.core = core
+        self._attr_name = name
+        self._attr_native_unit_of_measurement = "people"
+        self._state = None
 
     @property
-    def native_value(self) -> str | None:
-        """Return the native value of the sensor."""
-        return self.coordinator.data.get("body")
+    def native_value(self):
+        return self._state
+
+    async def async_update(self):
+        self._state = self.core.parseData()

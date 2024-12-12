@@ -1,28 +1,30 @@
+
 import voluptuous as vol
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.discovery import async_load_platform
+from homeassistant.helpers import config_validation as cv
 from .const import (
     DOMAIN,
-    CONF_CLI_DEVICE_PATH,
     CONF_DATA_DEVICE_PATH,
-    DEFAULT_CLI_DEVICE_PATH,
     DEFAULT_DATA_DEVICE_PATH
 )
-from homeassistant.helpers.discovery import async_load_platform
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
 import logging
-import homeassistant.helpers.config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup(hass: HomeAssistant, config: ConfigType):
+async def async_setup(hass: HomeAssistant, config):
     if DOMAIN not in config:
         return True
 
-    cli_device_path = config[DOMAIN].get(CONF_CLI_DEVICE_PATH, DEFAULT_CLI_DEVICE_PATH)
     data_device_path = config[DOMAIN].get(CONF_DATA_DEVICE_PATH, DEFAULT_DATA_DEVICE_PATH)
+
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][CONF_CLI_DEVICE_PATH] = cli_device_path
     hass.data[DOMAIN][CONF_DATA_DEVICE_PATH] = data_device_path
+
+    from .radar_reader import RadarReader
+
+    radar_reader = RadarReader(data_device_path)
+    hass.data[DOMAIN]['radar_reader'] = radar_reader
 
     async def handle_send_command(call):
         command = call.data.get('command')
@@ -42,11 +44,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType):
         })
     )
 
-    from .radar_reader import RadarReader
-
-    radar_reader = RadarReader(cli_device_path, data_device_path)
-    hass.data[DOMAIN]['radar_reader'] = radar_reader
-
+    # Load the sensor platform
     hass.async_create_task(
         async_load_platform(hass, "sensor", DOMAIN, {}, config)
     )

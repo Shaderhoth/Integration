@@ -1,7 +1,7 @@
 from homeassistant.helpers.entity import Entity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-from .const import DOMAIN, CONF_CLI_DEVICE_PATH, CONF_DATA_DEVICE_PATH
+from .const import DOMAIN, CONF_DATA_DEVICE_PATH
 import logging
 
 _LOGGER = logging.getLogger(__name__)

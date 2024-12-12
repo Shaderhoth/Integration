@@ -1,5 +1,3 @@
-DOMAIN = "IWR6843AOPEVM"
-CONF_CLI_DEVICE_PATH = "cli_device_path"
+DOMAIN = "radar_integration"
 CONF_DATA_DEVICE_PATH = "data_device_path"
-DEFAULT_CLI_DEVICE_PATH = "/dev/ttyUSB1"
-DEFAULT_DATA_DEVICE_PATH = "/dev/ttyUSB2"
+DEFAULT_DATA_DEVICE_PATH = "/dev/ttyUSB1"

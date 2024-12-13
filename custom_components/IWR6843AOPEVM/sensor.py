@@ -11,6 +11,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 class RadarDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, core):
+        self.last_data = None
         super().__init__(
             hass=hass,
             logger=LOGGER,
@@ -21,23 +22,20 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         try:
-            return self.core.parseData()
+            data = self.core.parseData()
+            if data > -1:
+                self.last_data = data
+            return self.last_data
         except Exception as exception:
             LOGGER.error("Error updating radar data: %s", exception)
-            return -1
+            return self.last_data
 
 class RadarSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, name):
         super().__init__(coordinator)
         self._attr_name = name
         self._attr_native_unit_of_measurement = "people"
-        self._last_valid_value = None
 
     @property
     def native_value(self):
-        return self._last_valid_value
-
-    async def async_update(self):
-        new_value = await self.coordinator._async_update_data()
-        if new_value > -1:
-            self._last_valid_value = new_value
+        return self.coordinator.last_data

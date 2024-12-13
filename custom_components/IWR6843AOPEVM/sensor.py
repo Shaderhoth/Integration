@@ -23,7 +23,7 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         try:
             data = self.core.parseData()
-            if data > -1:
+            if data > -1 or data > 100:
                 self.last_data = data
             else:
                 self.last_data = 0

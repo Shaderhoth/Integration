@@ -20,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     config_file = "AOP_6m_default.cfg"
     core.selectCfg(config_file)
     core.connectCom(cli, port)
-    core.sendCfg()
+    await core.sendCfg()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = core

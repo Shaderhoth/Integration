@@ -109,7 +109,7 @@ class Core:
         self.cfg = []
 
     def connectCom(self, cliCom, dataCom):
-        self.parser.connectComPorts(f"COM{cliCom}", f"COM{dataCom}")
+        self.parser.connectComPorts(cliCom, dataCom)
 
     def selectCfg(self, filename):
         base_path = os.path.dirname(__file__)

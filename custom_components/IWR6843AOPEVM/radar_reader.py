@@ -2,6 +2,7 @@ import serial
 import struct
 import logging
 import time
+import os
 
 MMWDEMO_OUTPUT_MSG_TRACKERPROC_3D_TARGET_LIST = 1010
 HEADER_STRUCT = struct.Struct('Q8I')
@@ -111,8 +112,13 @@ class Core:
         self.parser.connectComPorts(f"COM{cliCom}", f"COM{dataCom}")
 
     def selectCfg(self, filename):
-        with open(filename, "r") as cfg_file:
+        base_path = os.path.dirname(__file__)
+        full_path = os.path.join(base_path, filename)
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(f"Configuration file '{full_path}' not found.")
+        with open(full_path, "r") as cfg_file:
             self.cfg = cfg_file.readlines()
+
 
     def sendCfg(self):
         self.parser.sendCfg(self.cfg)

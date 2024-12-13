@@ -14,11 +14,12 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up the radar integration from a config entry."""
     core = Core()
+    cli = entry.data.get("cli")
     port = entry.data.get("port")
     
     config_file = "AOP_6m_default.cfg"
     core.selectCfg(config_file)
-    core.connectCom(port)
+    core.connectCom(cli, port)
     core.sendCfg()
 
     hass.data.setdefault(DOMAIN, {})

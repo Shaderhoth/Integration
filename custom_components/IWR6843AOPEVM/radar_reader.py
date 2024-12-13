@@ -1,7 +1,8 @@
 import serial
 import struct
 import logging
-import time
+import sys
+import asyncio
 import os
 
 MMWDEMO_OUTPUT_MSG_TRACKERPROC_3D_TARGET_LIST = 1010
@@ -89,12 +90,12 @@ class UARTParser:
             log.error(f"Error reading UART data: {e}")
             return -1
 
-    def sendCfg(self, cfg):
+    async def sendCfg(self, cfg):
         cfg = [line.strip() + '\n' for line in cfg if line.strip() and not line.startswith('%')]
         for line in cfg:
-            time.sleep(0.03)
+            await asyncio.sleep(0.03)
             self.cliCom.write(line.encode())
-            time.sleep(0.03)
+            await asyncio.sleep(0.03)
             while self.cliCom.in_waiting:
                 ack = self.cliCom.readline().decode('utf-8', 'ignore').strip()
                 log.info(ack)
@@ -120,8 +121,8 @@ class Core:
             self.cfg = cfg_file.readlines()
 
 
-    def sendCfg(self):
-        self.parser.sendCfg(self.cfg)
+    async def sendCfg(self):
+        await self.parser.sendCfg(self.cfg)
 
     def parseData(self):
         people = self.parser.readAndParseUartDoubleCOMPort()

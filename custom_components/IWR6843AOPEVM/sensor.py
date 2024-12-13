@@ -15,7 +15,7 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name="Radar Sensor Data",
-            update_interval=timedelta(milliseconds=200),
+            update_interval=timedelta(seconds=1),
         )
         self.core = core
 
@@ -39,5 +39,5 @@ class RadarSensor(CoordinatorEntity, SensorEntity):
 
     async def async_update(self):
         new_value = await self.coordinator._async_update_data()
-        if new_value != -1:
+        if new_value > -1:
             self._last_valid_value = new_value

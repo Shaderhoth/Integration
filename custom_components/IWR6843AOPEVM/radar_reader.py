@@ -26,6 +26,7 @@ def parseStandardFrame(frameData):
             tlvType, tlvLength = TLV_HEADER_STRUCT.unpack(frameData[:TLV_HEADER_LEN])
             frameData = frameData[TLV_HEADER_LEN:]
             if tlvType == MMWDEMO_OUTPUT_MSG_TRACKERPROC_3D_TARGET_LIST:
+                log.error(f"Detected {tlvLength // TARGET_SIZE} people. at 1010")
                 numDetectedTargets = tlvLength // TARGET_SIZE
                 return numDetectedTargets if numDetectedTargets > 0 else 0
             frameData = frameData[tlvLength:]

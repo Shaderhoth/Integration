@@ -25,6 +25,8 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
             data = self.core.parseData()
             if data > -1:
                 self.last_data = data
+            else:
+                self.last_data = 0
             return self.last_data
         except Exception as exception:
             LOGGER.error("Error updating radar data: %s", exception)

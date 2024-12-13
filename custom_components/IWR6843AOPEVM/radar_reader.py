@@ -131,3 +131,4 @@ class Core:
             log.error(f"Detected {people} people.")
         else:
             log.error("Failed to detect people.")
+        return people

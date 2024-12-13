@@ -127,6 +127,6 @@ class Core:
     def parseData(self):
         people = self.parser.readAndParseUartDoubleCOMPort()
         if people >= 0:
-            log.info(f"Detected {people} people.")
+            log.error(f"Detected {people} people.")
         else:
             log.error("Failed to detect people.")

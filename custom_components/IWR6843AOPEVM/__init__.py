@@ -18,7 +18,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     port = entry.data.get("port")
     
     config_file = "radar_config.cfg"
-    core.selectCfg(config_file)
+    await core.selectCfg(config_file)
     core.connectCom(cli, port)
     await core.sendCfg()
 

@@ -12,6 +12,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class RadarDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, core):
         self.last_data = None
+        self.zerocount = 0
         super().__init__(
             hass=hass,
             logger=LOGGER,
@@ -22,12 +23,16 @@ class RadarDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         try:
-            data = self.core.parseData()
+            data = self.core.parseData()            
             if data > -1 and data < 100:
+                self.zerocount = 0
                 self.last_data = data
+                return self.last_data
             else:
-                self.last_data = 0
-            return self.last_data
+                self.zerocount += 1
+                if self.zerocount > 2:
+                    self.last_data = 0
+                return self.last_data
         except Exception as exception:
             LOGGER.error("Error updating radar data: %s", exception)
             return self.last_data

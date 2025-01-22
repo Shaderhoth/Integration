@@ -4,6 +4,7 @@ import logging
 import sys
 import asyncio
 import os
+import aiofiles
 
 MMWDEMO_OUTPUT_MSG_TRACKERPROC_3D_TARGET_LIST = 1010
 HEADER_STRUCT = struct.Struct('Q8I')
@@ -113,13 +114,15 @@ class Core:
     def connectCom(self, cliCom, dataCom):
         self.parser.connectComPorts(cliCom, dataCom)
 
-    def selectCfg(self, filename):
+    async def selectCfg(self, filename):
         base_path = os.path.dirname(__file__)
         full_path = os.path.join(base_path, filename)
         if not os.path.exists(full_path):
             raise FileNotFoundError(f"Configuration file '{full_path}' not found.")
-        with open(full_path, "r") as cfg_file:
-            self.cfg = cfg_file.readlines()
+        self.cfg = []
+        async with aiofiles.open(full_path, "r") as cfg_file:
+            async for line in cfg_file:
+                self.cfg.append(line.strip())
 
 
     async def sendCfg(self):
